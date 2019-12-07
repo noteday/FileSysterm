@@ -2,6 +2,7 @@ package views;
 
 import models.FAT;
 import models.File;
+import models.OpenFile;
 import service.FATService;
 import util.FileSystemUtil;
 import util.MessageUtil;
@@ -20,6 +21,7 @@ import javax.swing.table.TableModel;
 
 //打开的文件窗口
 public class OpenFileJFrame extends JFrame {
+    private MainFrame mainFrame;
     private JTextArea jta1;
     private JMenuBar jmb;
     private JMenu jm;
@@ -29,6 +31,7 @@ public class OpenFileJFrame extends JFrame {
     private File file;
     private String oldContent;
     private int length;
+    private OpenFile openFile;
     private FATService fatService;
     private OpenFileTableModel oftm;
     private JTable jt;
@@ -37,13 +40,15 @@ public class OpenFileJFrame extends JFrame {
     private JTable jta;
     private boolean canClose = true;
 
-    public OpenFileJFrame(FAT fat, FATService fatService, OpenFileTableModel oftm, JTable jt, BlockTableModel tm, JTable jta) {
+    public OpenFileJFrame(FAT fat, FATService fatService, OpenFileTableModel oftm, JTable jt, BlockTableModel tm, JTable jta, OpenFile openFile,MainFrame mainFrame) {
         this.fat = fat;
         this.fatService = fatService;
         this.oftm = oftm;
         this.jt = jt;
         this.tm = tm;
         this.jta = jta;
+        this.openFile=openFile;
+        this.mainFrame=mainFrame;
 
         this.file = (File)fat.getObject(); //打开的文件
 
@@ -70,7 +75,7 @@ public class OpenFileJFrame extends JFrame {
     private void init() {
         this.setResizable(false);
         this.setSize(600, 500);
-        this.setTitle("打开");
+        this.setTitle(this.file.getFileName());
         this.setLocation(200, 150);
         this.add(this.jmb, "North");
         this.add(this.jta1);
@@ -104,20 +109,31 @@ public class OpenFileJFrame extends JFrame {
         this.length = this.jta1.getText().length();
         if (this.length > ((File)this.fat.getObject()).getLength() - 8) {
             //得到修改后的文件占用物理块数，大于1则获取新的物理块
-            int num = FileSystemUtil.getNumOfFAT(this.length);
+            int num = FileSystemUtil.getNumOfFAT(this.length+8);
             if (num > 1) {
                 boolean boo = this.fatService.saveToModifyFATS2(this, num, this.fat);
                 if (boo) {
-                    this.file.setLength(this.length);
+                    this.file.setLength(this.length+8);
                     this.file.setContent(this.jta1.getText());
                 }
             } else {
-                this.file.setLength(this.length);
+                this.file.setLength(this.length+8);
                 this.file.setContent(this.jta1.getText());
             }
 
             this.tm.initData();
             this.jta.updateUI();
+
+            FATService.getOpenFiles().removeFile(this.openFile);
+            int flag;
+            if(((File)this.fat.getObject()).isReadOnly()==true){
+                flag=FileSystemUtil.flagOnlyRead;
+            }else {
+                flag=FileSystemUtil.flagWrite;
+            }
+            this.openFile=this.fatService.addOpenFile(this.fat,flag);
+            this.oftm.initData();
+            this.mainFrame.jta2.updateUI();
         }
 
     }
