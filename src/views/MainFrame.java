@@ -5,6 +5,8 @@ import util.FileSystemUtil;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -25,7 +27,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 
 public class MainFrame extends JFrame {
@@ -91,6 +97,25 @@ public class MainFrame extends JFrame {
         //路径框和帮助按钮初始化
         this.jtf1.setPreferredSize(new Dimension(450, 20));
         this.jtf1.setText("C:");
+        this.jtf1.addKeyListener(new KeyAdapter(){     //绝对路径寻找文件
+            public void keyPressed(KeyEvent e){
+                if(e.getKeyChar()==KeyEvent.VK_ENTER ) {  //按回车键执行相应操作;
+                    String textpath = jtf1.getText();
+                    List<FAT> textFatList = new ArrayList();
+                    textFatList=fatService.getFATs(textpath);
+                    //System.out.println(map.toString());
+                   // System.out.println(textFatList.toString());
+                    jtr.jp1.removeAll();
+                    if (textFatList.size()!=0) {
+                        //System.out.println(1);
+                        jtr.addJLabel(textFatList, textpath);
+
+                    }
+                    jtr.jp1.updateUI();
+
+                }
+            }
+        });
         this.jl2 = new JLabel("                   路径：");
         this.jp2.add(this.jl2);
         this.jp2.add(this.jtf1);
