@@ -9,7 +9,7 @@ public class MessageUtil {
     }
 
     public static void showMgs(Component parent, String message) {
-        JOptionPane.showMessageDialog(parent, message, "错误", 0);
+        JOptionPane.showMessageDialog(parent, message, "提醒", JOptionPane.PLAIN_MESSAGE);
     }
 
     public static void showErrorMgs(Component parent, String message) {
@@ -19,4 +19,6 @@ public class MessageUtil {
     public static int showConfirmMgs(Component parent, String message) {
         return JOptionPane.showConfirmDialog(parent, message, "确认", 0);
     }
+
+
 }
