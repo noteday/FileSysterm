@@ -2,13 +2,12 @@ package views;
 import models.FAT;
 import service.FATService;
 import util.FileSystemUtil;
+import util.MessageUtil;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -83,16 +82,17 @@ public class MainFrame extends JFrame {
         this.tm = new BlockTableModel();
         this.jta = new JTable(this.tm);
         this.jsp1 = new JScrollPane(this.jta);
-        this.jsp1.setPreferredSize(new Dimension(300, 355));
+        this.jsp1.setPreferredSize(new Dimension(500, 355));
 
         //打开文件表初始化
         this.oftm = new OpenFileTableModel();
         this.jta2 = new JTable(this.oftm);
         this.jsp2 = new JScrollPane(this.jta2);
-        this.jsp2.setPreferredSize(new Dimension(300, 100));
+        this.jsp2.setPreferredSize(new Dimension(500, 100));
 
         //帮助按钮绑定点击事件
         this.jb1AddListener();
+        this.jmiAddListener();
 
         //路径框和帮助按钮初始化
         this.jtf1.setPreferredSize(new Dimension(450, 20));
@@ -132,7 +132,7 @@ public class MainFrame extends JFrame {
 
         this.jp2.setLayout(new FlowLayout(0));
         this.jp2.setPreferredSize(new Dimension(1000, 30));
-        this.jp5.setPreferredSize(new Dimension(300, 500));
+        this.jp5.setPreferredSize(new Dimension(500, 500));
         this.jp1.setLayout(new BorderLayout());
         this.jp1.add(this.jp2, "North");
         this.jp1.add(this.jtr, "West");
@@ -140,7 +140,7 @@ public class MainFrame extends JFrame {
 
         //主界面设置
         this.setTitle("模拟磁盘文件系统");
-        this.setSize(1000, 600);
+        this.setSize(1200, 600);
         this.setLocation(200, 100);
         this.setDefaultCloseOperation(3);
         this.setResizable(false);
@@ -197,6 +197,16 @@ public class MainFrame extends JFrame {
         });
     }
 
+    //响应帮助按钮的鼠标点击事件
+    private void jmiAddListener() {
+        this.jmi.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(1);
+                MessageUtil.showMgs(jp1,"请看我的github:https://github.com/noteday");
+            }
+
+        });
+    }
 
     public static void main(String[] args) {
         //System.out.println(this.getClass().getResource(FileSystemUtil.imgPath));

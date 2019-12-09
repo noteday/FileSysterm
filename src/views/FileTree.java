@@ -1,10 +1,7 @@
 
 package views;
 
-import models.Disk;
-import models.FAT;
-import models.File;
-import models.Folder;
+import models.*;
 import service.FATService;
 import util.FileSystemUtil;
 import util.MessageUtil;
@@ -27,7 +24,7 @@ public class FileTree extends JPanel {
     private JScrollPane jsp2;
 
     private JSplitPane jsp;
-    private JPanel jp1;
+    protected JPanel jp1;
     private FileJLabel[] jLabel;
 
     //文件的增删改查，创建文件目录
@@ -176,9 +173,10 @@ public class FileTree extends JPanel {
                 TreePath path = tree.getSelectionPath();
                 String[] names= path.toString().replaceAll("]","").split(",");
                 String name =names[names.length-1];
-                System.out.println(name);
+                //System.out.println(name);
                 if (path != null&&name.endsWith(".txt")==false) {
                     String pathStr = path.toString().replace("[", "").replace("]", "").replace(",", "\\").replace(" ", "").replaceFirst("C", "C:");
+                    System.out.println(pathStr);
                     mainFrame.jtf1.setText(pathStr);
                     jp1.removeAll();
                     addJLabel(mainFrame.fatService.getFATs(pathStr), pathStr);
@@ -190,7 +188,7 @@ public class FileTree extends JPanel {
     }
 
     //文件系统右边的窗口显示
-    private void addJLabel(List<FAT> fats, String path) {
+    protected void addJLabel(List<FAT> fats, String path) {
         mainFrame.fatList = fats;
         mainFrame.isFile = true;
         mainFrame.n= fats.size();
@@ -264,11 +262,18 @@ public class FileTree extends JPanel {
                                         return;
                                     }
                                     //更新打开文件表
-                                    mainFrame.fatService.addOpenFile(mainFrame.fatList.get(mainFrame.fatIndex), FileSystemUtil.flagWrite);
+                                    int flag;
+                                    if(((File)mainFrame.fatList.get(mainFrame.fatIndex).getObject()).isReadOnly()==true){
+                                        flag=FileSystemUtil.flagOnlyRead;
+                                    }else {
+                                        flag=FileSystemUtil.flagWrite;
+                                    }
+                                    OpenFile openFile= mainFrame.fatService.addOpenFile(mainFrame.fatList.get(mainFrame.fatIndex), flag);
+
                                     mainFrame.oftm.initData();
                                     mainFrame.jta2.updateUI();
                                     //打开文件窗口
-                                    new OpenFileJFrame(mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.fatService, mainFrame.oftm, mainFrame.jta2, mainFrame.tm, mainFrame.jta);
+                                    new OpenFileJFrame(mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.fatService, mainFrame.oftm, mainFrame.jta2, mainFrame.tm, mainFrame.jta,openFile,mainFrame);
                                 } else {
                                     MessageUtil.showErrorMgs(jp1, "已经打开5个文件了，达到上限");
                                 }
@@ -352,11 +357,20 @@ public class FileTree extends JPanel {
                             MessageUtil.showErrorMgs(jp1, "文件已打开");
                             return;
                         }
+                        //更新打开文件表
+                        int flag;
+                        if(((File)mainFrame.fatList.get(mainFrame.fatIndex).getObject()).isReadOnly()==true){
+                            flag=FileSystemUtil.flagOnlyRead;
+                        }else {
+                            flag=FileSystemUtil.flagWrite;
+                        }
+                        OpenFile openFile= mainFrame.fatService.addOpenFile(mainFrame.fatList.get(mainFrame.fatIndex), flag);
 
-                        mainFrame.fatService.addOpenFile((FAT)mainFrame.fatList.get(mainFrame.fatIndex), FileSystemUtil.flagWrite);
                         mainFrame.oftm.initData();
                         mainFrame.jta2.updateUI();
-                        new OpenFileJFrame((FAT)mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.fatService, mainFrame.oftm, mainFrame.jta2, mainFrame.tm, mainFrame.jta);
+                        //打开文件窗口
+                        new OpenFileJFrame(mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.fatService, mainFrame.oftm, mainFrame.jta2, mainFrame.tm, mainFrame.jta,openFile,mainFrame);
+
                     } else {
                         MessageUtil.showErrorMgs(jp1, "已经打开5个文件了，达到上限");
                     }
@@ -391,7 +405,7 @@ public class FileTree extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 int i = MessageUtil.showConfirmMgs(jp1, "是否确定要删除该文件？");
                 if (i == 0) {
-                    mainFrame.fatService.delete(jp1, (FAT)mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.map);
+                    mainFrame.fatService.delete(jp1, mainFrame.fatList.get(mainFrame.fatIndex), mainFrame.map);
                     tree.updateUI();
                     mainFrame.tm.initData();
                     mainFrame.jta.updateUI();
@@ -403,9 +417,10 @@ public class FileTree extends JPanel {
             }
         });
 
+        //打开文件属性
         this.mi6.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("属性");
+                //System.out.println("属性");
                 new ShowPropertyDialog(jp1, mainFrame.fatList.get(mainFrame.fatIndex));
             }
         });

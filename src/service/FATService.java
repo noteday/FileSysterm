@@ -30,12 +30,32 @@ public class FATService {
 
 
     //增加打开文件
-    public void addOpenFile(FAT fat, int flag) {
+    public OpenFile addOpenFile(FAT fat, int flag) {
         OpenFile openFile = new OpenFile();
         openFile.setFile((File)fat.getObject());
         openFile.setFlag(flag);
+        openFile.setWrite(getWritePoint(new Pointer(),fat));
         openFiles.addFile(openFile);
+        return openFile;
     }
+    //查找写指针
+    public Pointer getWritePoint(Pointer write,FAT fat) {
+        int begin = ((File) fat.getObject()).getDiskNum();
+        int index = myFAT[begin].getIndex();
+
+        int oldNum;
+        //找出文件原本所占有的物理块
+        for (oldNum = 1; index != FileSystemUtil.END; index = myFAT[index].getIndex()) {
+            ++oldNum;
+            if (myFAT[index].getIndex() == FileSystemUtil.END) {  //最后一块物理块下标
+                begin = index;
+            }
+        }
+        write.setBnum(oldNum+((File) fat.getObject()).getDiskNum()-1);
+        write.setDnum(((File) fat.getObject()).getLength()-(oldNum-1)*64);
+        return write;
+    }
+
 
     //文件关闭的时候减少打开文件列表
     public void removeOpenFile(FAT fat) {
@@ -208,6 +228,40 @@ public class FATService {
         }
     }
 
+    //根据num的值减少文件非配的物理块
+    public boolean saveToModifyFATS1(Component parent, int num, FAT fat) {
+        int begin = ((File)fat.getObject()).getDiskNum();
+        int index = myFAT[begin].getIndex();
+
+        int oldNum;
+        //找出文件原本所占有的物理块，比较是否需要新的物理块
+        for(oldNum = 1; index != FileSystemUtil.END; index = myFAT[index].getIndex()) {
+            ++oldNum;
+            if (myFAT[index].getIndex() == FileSystemUtil.END) {  //最后一块物理块下标
+                begin = index;
+            }
+        }
+        index=((File)fat.getObject()).getDiskNum();
+        if (num < oldNum) {
+            for(int i = 1; i <= oldNum; ++i) {
+                if(i>num){
+                    int temp = myFAT[index].getIndex();
+                    myFAT[index]=null;
+                    index=temp;
+                }else if(i==num){
+                    int temp = myFAT[index].getIndex();
+                    myFAT[index].setIndex(255);
+                    index=temp;
+
+                }else {
+                    index=myFAT[index].getIndex();
+                }
+            }
+            return true;
+        }
+        return true;
+    }
+
     public List<Folder> getFolders(String path) {
         List<Folder> list = new ArrayList();
 
@@ -268,6 +322,8 @@ public class FATService {
 
     }
 
+
+    //删除文件或目录
     public void delete(JPanel jp1, FAT fat, Map<String, DefaultMutableTreeNode> map) {
         if (fat.getType() == FileSystemUtil.FILE) {
             int i;
@@ -281,9 +337,14 @@ public class FATService {
             for(i = 0; i < myFAT.length; ++i) {
                 if (myFAT[i] != null && myFAT[i].getType() == FileSystemUtil.FILE && ((File)myFAT[i].getObject()).equals((File)fat.getObject())) {
                     myFAT[i] = null;
-                    System.out.println("----------------------->删除");
                 }
             }
+            String path = ((File)fat.getObject()).getLocation();
+            String folderPath = ((File)fat.getObject()).getLocation() + "\\" + ((File)fat.getObject()).getFileName();
+
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)map.get(path);
+            parentNode.remove(map.get(folderPath));
+            map.remove(folderPath);
         } else {
             String path = ((Folder)fat.getObject()).getLocation();
             String folderPath = ((Folder)fat.getObject()).getLocation() + "\\" + ((Folder)fat.getObject()).getFolderName();
@@ -311,7 +372,7 @@ public class FATService {
 
             myFAT[index] = null;
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)map.get(path);
-            parentNode.remove((MutableTreeNode)map.get(folderPath));
+            parentNode.remove(map.get(folderPath));
             map.remove(folderPath);
         }
 

@@ -15,7 +15,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-//文件属性窗口
+//文件属性窗口a
 public class ShowPropertyDialog extends JDialog {
     private JPanel jp1;
     private JLabel jl1;
@@ -23,11 +23,9 @@ public class ShowPropertyDialog extends JDialog {
     private JLabel jl3;
     private JLabel jl4;
     private JLabel jl5;
-    private JLabel jl6;
     private FAT fat;
     private JButton jb1;
     private JButton jb2;
-    private JButton jb3;
     private JRadioButton jrb1;
     private JRadioButton jrb2;
     private boolean isFile = false;
@@ -37,7 +35,7 @@ public class ShowPropertyDialog extends JDialog {
         this.fat = f;
         this.init();
         this.setTitle("属性");
-        this.setSize(280, 330);
+        this.setSize(290, 350);
         this.setLayout(new FlowLayout());
         this.setModal(true);
         this.setLocationRelativeTo(c);
@@ -50,16 +48,14 @@ public class ShowPropertyDialog extends JDialog {
             this.jl1 = new JLabel("名字 :                        " + folder.getFolderName());
             this.jl2 = new JLabel("类型 :                        " + folder.getType());
             this.jl3 = new JLabel("路径 :                        " + folder.getLocation());
-            this.jl4 = new JLabel("占用空间大小:           " + folder.getSize());
+            this.jl4 = new JLabel("占用空间大小:           " + folder.getLength()+"字节");
             this.jl5 = new JLabel("创建日期: " + folder.getCreateTime());
-            this.jl6 = new JLabel("属性");
             this.jrb1 = new JRadioButton("只读");
-            this.jrb2 = new JRadioButton("隐藏");
+            this.jrb2 = new JRadioButton("读写");
             if (folder.isReadOnly()) {
+                System.out.println(2);
                 this.jrb1.setSelected(true);
-            }
-
-            if (folder.isHide()) {
+            }else {
                 this.jrb2.setSelected(true);
             }
         } else if (this.fat.getType() == FileSystemUtil.FILE) {
@@ -68,16 +64,14 @@ public class ShowPropertyDialog extends JDialog {
             this.jl1 = new JLabel("名字 :                        " + file.getFileName());
             this.jl2 = new JLabel("类型 :                        " + file.getType());
             this.jl3 = new JLabel("路径 :                        " + file.getLocation());
-            this.jl4 = new JLabel("占用空间大小:            " + file.getSize());
+            this.jl4 = new JLabel("占用空间大小:            " + file.getLength()+"字节");
             this.jl5 = new JLabel("创建日期：" + file.getCreateTime());
-            this.jl6 = new JLabel("属性");
             this.jrb1 = new JRadioButton("只读");
-            this.jrb2 = new JRadioButton("隐藏");
+            this.jrb2 = new JRadioButton("读写");
             if (file.isReadOnly()) {
+                System.out.println(2);
                 this.jrb1.setSelected(true);
-            }
-
-            if (file.isHide()) {
+            }else {
                 this.jrb2.setSelected(true);
             }
         }
@@ -92,78 +86,50 @@ public class ShowPropertyDialog extends JDialog {
         this.add(this.jl3);
         this.add(this.jl4);
         this.add(this.jl5);
-        this.add(this.jl6);
         this.add(this.jrb1);
         this.add(this.jrb2);
         this.jp1 = new JPanel();
         this.jb1 = new JButton("确定");
         this.jb2 = new JButton("取消");
-        this.jb3 = new JButton("应用");
         this.jp1.add(this.jb1);
         this.jp1.add(this.jb2);
-        this.jp1.add(this.jb3);
         this.add(this.jp1);
         this.jb1.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (ShowPropertyDialog.this.jrb1.isSelected()) {
-                    if (ShowPropertyDialog.this.isFile) {
-                        ((File)ShowPropertyDialog.this.fat.getObject()).setReadOnly(true);
+
+                if (jrb1.isSelected()) {
+                    if (isFile) {
+                        System.out.println(1);
+                        ((File)fat.getObject()).setReadOnly(true);
                     } else {
-                        ((Folder)ShowPropertyDialog.this.fat.getObject()).setReadOnly(true);
+                        ((Folder)fat.getObject()).setReadOnly(true);
                     }
-                } else if (ShowPropertyDialog.this.isFile) {
-                    ((File)ShowPropertyDialog.this.fat.getObject()).setReadOnly(false);
+                } else if (isFile) {
+                    ((File)fat.getObject()).setReadOnly(false);
                 } else {
-                    ((Folder)ShowPropertyDialog.this.fat.getObject()).setReadOnly(false);
+                    ((Folder)fat.getObject()).setReadOnly(false);
                 }
 
-                if (ShowPropertyDialog.this.jrb2.isSelected()) {
-                    if (ShowPropertyDialog.this.isFile) {
-                        ((File)ShowPropertyDialog.this.fat.getObject()).setHide(true);
+                if (jrb2.isSelected()) {
+                    if (isFile) {
+                        ((File)fat.getObject()).setReadOnly(false);
                     } else {
-                        ((Folder)ShowPropertyDialog.this.fat.getObject()).setHide(true);
+                        ((Folder)fat.getObject()).setReadOnly(false);
                     }
-                } else if (ShowPropertyDialog.this.isFile) {
-                    ((File)ShowPropertyDialog.this.fat.getObject()).setHide(false);
+                } else if (isFile) {
+                    ((File)fat.getObject()).setReadOnly(true);
                 } else {
-                    ((Folder)ShowPropertyDialog.this.fat.getObject()).setHide(false);
+                    ((Folder)fat.getObject()).setReadOnly(true);
                 }
 
-                ShowPropertyDialog.this.jd1.setVisible(false);
+                jd1.setVisible(false);
             }
         });
         this.jb2.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ShowPropertyDialog.this.jd1.setVisible(false);
+                jd1.setVisible(false);
             }
         });
-        this.jb3.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (ShowPropertyDialog.this.jrb1.isSelected()) {
-                    if (ShowPropertyDialog.this.isFile) {
-                        ((File)ShowPropertyDialog.this.fat.getObject()).setReadOnly(true);
-                    } else {
-                        ((Folder)ShowPropertyDialog.this.fat.getObject()).setReadOnly(true);
-                    }
-                } else if (ShowPropertyDialog.this.isFile) {
-                    ((File)ShowPropertyDialog.this.fat.getObject()).setReadOnly(false);
-                } else {
-                    ((Folder)ShowPropertyDialog.this.fat.getObject()).setReadOnly(false);
-                }
 
-                if (ShowPropertyDialog.this.jrb2.isSelected()) {
-                    if (ShowPropertyDialog.this.isFile) {
-                        ((File)ShowPropertyDialog.this.fat.getObject()).setHide(true);
-                    } else {
-                        ((Folder)ShowPropertyDialog.this.fat.getObject()).setHide(true);
-                    }
-                } else if (ShowPropertyDialog.this.isFile) {
-                    ((File)ShowPropertyDialog.this.fat.getObject()).setHide(false);
-                } else {
-                    ((Folder)ShowPropertyDialog.this.fat.getObject()).setHide(false);
-                }
-
-            }
-        });
     }
 }

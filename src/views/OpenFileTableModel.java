@@ -20,9 +20,15 @@ public class OpenFileTableModel extends AbstractTableModel {
         //设置属性
         this.columnNames = new Vector();
         this.columnNames.add("文件名称");
-        this.columnNames.add("文件打开方式");
+        this.columnNames.add("文件路径名");
+        this.columnNames.add("文件属性");
         this.columnNames.add("文件起始盘块号");
-        this.columnNames.add("文件路径");
+        this.columnNames.add("文件长度");
+        this.columnNames.add("操作类型");
+        this.columnNames.add("写指针块号");
+        this.columnNames.add("写指针块号地址");
+
+
         Vector<String> vc = null;
         this.rowDatas = new Vector();
         OpenFiles openFiles = FATService.getOpenFiles();
@@ -30,11 +36,19 @@ public class OpenFileTableModel extends AbstractTableModel {
         for(int i = 0; i < FileSystemUtil.num; ++i) {
             vc = new Vector();
             if (i < openFiles.getFiles().size()) {
-                vc.add(((OpenFile)openFiles.getFiles().get(i)).getFile().getFileName());
-                vc.add(((OpenFile)openFiles.getFiles().get(i)).getFlag() == FileSystemUtil.flagRead ? "只读" : "写读");
-                vc.add(String.valueOf(((OpenFile)openFiles.getFiles().get(i)).getFile().getDiskNum()));
-                vc.add(((OpenFile)openFiles.getFiles().get(i)).getFile().getLocation());
+                vc.add((openFiles.getFiles().get(i)).getFile().getFileName());
+                vc.add((openFiles.getFiles().get(i)).getFile().getLocation());
+                vc.add((openFiles.getFiles().get(i)).getFlag() == FileSystemUtil.flagOnlyRead ? "系统文件" : "普通文件");
+                vc.add(String.valueOf((openFiles.getFiles().get(i)).getFile().getDiskNum()));
+                vc.add(String.valueOf((openFiles.getFiles().get(i)).getFile().getLength())+"字节");
+                vc.add((openFiles.getFiles().get(i)).getFlag() == FileSystemUtil.flagOnlyRead ? "只读" : "写读");
+                vc.add(String.valueOf((openFiles.getFiles().get(i)).getWrite().getBnum()));
+                vc.add(String.valueOf((openFiles.getFiles().get(i)).getWrite().getDnum()));
             } else {
+                vc.add("");
+                vc.add("");
+                vc.add("");
+                vc.add("");
                 vc.add("");
                 vc.add("");
                 vc.add("");
@@ -51,7 +65,7 @@ public class OpenFileTableModel extends AbstractTableModel {
     }
 
     public int getColumnCount() {
-        return 4;
+        return 8;
     }
 
     public String getColumnName(int column) {

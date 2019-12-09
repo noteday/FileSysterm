@@ -13,27 +13,21 @@ public class File {
     private String content;       //文件内容
     private Folder parent;        //文件的父目录
 
-    private int numOfFAT;           //
     private String location;        //文件路径
-    private String size;
-    private String space;
     private Date createTime;
     private boolean isReadOnly;
-    private boolean isHide;
 
     public File(String fileName) {
         this.fileName = fileName;
     }
 
     public File(String fileName, String location, int diskNum) {
+        this.createTime = new Date();
         this.fileName = fileName;
         this.location = location;
-        this.size = "100KB";
-        this.space = "100KB";
         this.diskNum = diskNum;
         this.type = "File";
         this.isReadOnly = false;
-        this.isHide = false;
         this.length = 8;
         this.content = "";
     }
@@ -94,22 +88,6 @@ public class File {
         this.location = location;
     }
 
-    public String getSize() {
-        return this.size;
-    }
-
-    public void setSize(String size) {
-        this.size = size;
-    }
-
-    public String getSpace() {
-        return this.space;
-    }
-
-    public void setSpace(String space) {
-        this.space = space;
-    }
-
     public String getCreateTime() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日  HH:mm:ss");
         return format.format(this.createTime);
@@ -125,14 +103,6 @@ public class File {
 
     public void setReadOnly(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
-    }
-
-    public boolean isHide() {
-        return this.isHide;
-    }
-
-    public void setHide(boolean isHide) {
-        this.isHide = isHide;
     }
 
     public String toString() {

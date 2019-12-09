@@ -65,6 +65,9 @@ public class OpenFileJFrame extends JFrame {
         this.jta1 = new JTextArea();
         this.oldContent = this.file.getContent();
         this.jta1.setText(this.oldContent);
+        if(openFile.getFlag()==FileSystemUtil.flagOnlyRead){
+            this.jta1.setEditable(false);
+        }
 
         //设置窗口大小
         this.init();
@@ -134,6 +137,28 @@ public class OpenFileJFrame extends JFrame {
             this.openFile=this.fatService.addOpenFile(this.fat,flag);
             this.oftm.initData();
             this.mainFrame.jta2.updateUI();
+        }else {
+            int num = FileSystemUtil.getNumOfFAT(this.length+8);
+            if(num>=1){
+                boolean boo = this.fatService.saveToModifyFATS1(this, num, this.fat);
+                if (boo) {
+                    this.file.setLength(this.length+8);
+                    this.file.setContent(this.jta1.getText());
+                }
+                this.tm.initData();
+                this.jta.updateUI();
+
+                FATService.getOpenFiles().removeFile(this.openFile);
+                int flag;
+                if(((File)this.fat.getObject()).isReadOnly()==true){
+                    flag=FileSystemUtil.flagOnlyRead;
+                }else {
+                    flag=FileSystemUtil.flagWrite;
+                }
+                this.openFile=this.fatService.addOpenFile(this.fat,flag);
+                this.oftm.initData();
+                this.mainFrame.jta2.updateUI();
+            }
         }
 
     }

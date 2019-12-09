@@ -92,7 +92,7 @@ public class Folder {
     public void setReadOnly(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
     }
-    
+
     public String toString() {
         return this.folderName;
     }
