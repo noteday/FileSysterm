@@ -1,7 +1,7 @@
 package util;
 
 public class FileSystemUtil {
-    public static int num = 5;
+    public static int num = 5;     //打开文件数量
     public static String folderPath = "/Users/noteday/IdeaProjects/FileSysterm/src/images/folder.jpg";
     public static String folder1Path = "/Users/noteday/IdeaProjects/FileSysterm/src/images/folder1.jpg";
     public static String filePath = "/Users/noteday/IdeaProjects/FileSysterm/src/images/file.jpg";
@@ -15,7 +15,7 @@ public class FileSystemUtil {
 
     public static int FOLDER = 1;    //代表目录
     public static int FILE = 2;       //代表文件
-    public static int flagRead = 0;
+    public static int flagOnlyRead = 0;
     public static int flagWrite = 1;
 
     public FileSystemUtil() {
